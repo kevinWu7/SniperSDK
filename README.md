@@ -1,2 +1,2 @@
-# SnpierSDK
-SnpierSDK
+# SniperSDK
+SniperSDK
