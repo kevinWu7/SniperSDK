@@ -1,5 +1,9 @@
 #include <iostream>
+#include <ctime>
+#include <sstream>
+#include <iomanip>
 #include "asio.hpp"
+#include "baseinfo.h"
 
 void read_handler(const asio::error_code& error,
                   std::size_t bytes_transferred,
@@ -30,7 +34,14 @@ void connect_handler(const asio::error_code& error, const asio::ip::tcp::endpoin
     std::cout << "Connected to server: " << endpoint << std::endl;
 
     // Send a message to the server
-    std::string message = "Hello from client!\n";
+    // Get the current time
+    std::time_t now = std::time(nullptr);
+    std::tm localTime = *std::localtime(&now);
+    // Create the desired format
+    std::ostringstream oss;
+    oss << std::put_time(&localTime, "%Y%m%d %H:%M:%S");
+    std::string formattedTime = oss.str();
+    std::string message = "Hello from client!"+formattedTime+"\n";
     asio::write(socket, asio::buffer(message));
     std::cout << "Send message: " << message << std::endl;
     
@@ -56,13 +67,13 @@ void start_client() {
   try {
     // Create an io_context object
     asio::io_context io_context;
-
+    std::string str=u8"aaa" ;
     // Create a TCP socket object
     asio::ip::tcp::socket socket(io_context);
 
     // Resolve the server address and port
     asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve("localhost", "18889");
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(server_host, "18889");
 
     // Connect to the server
     asio::async_connect(socket, endpoints, std::bind(connect_handler,
