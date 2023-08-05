@@ -3,7 +3,7 @@
 #define BASEINFO_H
 
 
-#define server_host "localhost"
-//#define server_host "124.222.92.5"
+//#define server_host "localhost"
+#define server_host "124.222.92.5"
 
 #endif

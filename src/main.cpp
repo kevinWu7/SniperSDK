@@ -34,7 +34,6 @@ void connect_handler(const asio::error_code& error, const asio::ip::tcp::endpoin
     std::cout << "Connected to server: " << endpoint << std::endl;
 
     // Send a message to the server
-    // Get the current time
     std::time_t now = std::time(nullptr);
     std::tm localTime = *std::localtime(&now);
     // Create the desired format
@@ -92,5 +91,6 @@ void start_client() {
 int main() {
   start_client();
   std::cout << "Reached the end" << std::endl;
+ 
   return 0;
 }
