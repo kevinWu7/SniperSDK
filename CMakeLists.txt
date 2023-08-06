@@ -12,5 +12,11 @@ include_directories("${CMAKE_SOURCE_DIR}/include/external/asio")#指定asio的�
 set(CMAKE_CXX_STANDARD 17) # 指定为C++11 版本
 add_executable (${PROJECT_NAME} ${SRC_FILE}) # 要求编译可执行文件
 
-
+#因为asio跨平台需要用到各个平台的网络库，所以要加上相关链接
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux") 
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
+endif()
 
