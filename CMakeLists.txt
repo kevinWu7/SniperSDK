@@ -1,7 +1,10 @@
 cmake_minimum_required (VERSION 3.1) #最低要求的CMake版本
 project(SniperSDK) # 项目名称
 
-file(GLOB SRC_FILE "${CMAKE_SOURCE_DIR}/src/*.cpp") # 建立变量SRC_FILE为目录下cpp文件列表
+file(GLOB SRC_FILE 
+    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/util/*.cpp"
+) # 建立变量SRC_FILE为目录下cpp文件列表
 
 add_definitions(-DASIO_STANDALONE) #设置asio的独立版，不需要boost
 
@@ -12,12 +15,16 @@ add_executable (${PROJECT_NAME} ${SRC_FILE}) # 要求编译可执行文件
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/external/asio"
     "${CMAKE_SOURCE_DIR}/include"
+    "${CMAKE_SOURCE_DIR}/include/util"
+
 )
 
 # 添加zlib的源文件（.c）到编译中
 add_subdirectory(external/zlib)
+add_subdirectory(external/minizip)
 # 链接zlib库
-target_link_libraries(${PROJECT_NAME} PRIVATE zlib_thirdlib)
+target_link_libraries(${PROJECT_NAME} PRIVATE zlib)
+target_link_libraries(${PROJECT_NAME} PRIVATE minizip)# 链接minizip库
 
 #因为asio跨平台需要用到各个平台的网络库，所以要加上相关链接
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux") 
@@ -26,4 +33,3 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
 endif()
-

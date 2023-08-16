@@ -2,7 +2,7 @@
  * Copyright (C) 2004-2019 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
+#include <unistd.h>
 #include "gzguts.h"
 
 /* Local functions */
