@@ -1,5 +1,4 @@
 #include <iostream>
-#include <ctime>
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
@@ -7,29 +6,14 @@
 #include "zlib.h"
 #include "baseinfo.h"
 #include "filehelper.h"
-
-
-void read_data(const asio::error_code &error, std::size_t bytes_transferred, std::vector<uint8_t> &buffer, asio::ip::tcp::socket &socket);
-
-
-uint64_t extractUint64(const std::vector<uint8_t>& bytes, size_t startIndex) {
-    if (startIndex + 8 > bytes.size()) {
-        // Handle error: not enough bytes in the vector
-        return 0;
-    }
-
-    uint64_t result = 0;
-    for (size_t i = 0; i < 8; ++i) {
-        result = (result << 8) | bytes[startIndex + i];
-    }
-
-    return result;
-}
+#include "util.h"
 
 std::vector<uint8_t> head_buffer(sn_totalHeadLength);
-std::vector<uint8_t> temp_buffer(1024);
+std::vector<uint8_t> temp_buffer(temp_length);
 std::vector<uint8_t> total_buffer;
 uint64_t bodylength = 0;
+
+
 
 void read_data(const asio::error_code &error, std::size_t bytes_transferred, std::vector<uint8_t> &buffer, asio::ip::tcp::socket &socket)
 {
@@ -43,13 +27,13 @@ void read_data(const asio::error_code &error, std::size_t bytes_transferred, std
       if (total_buffer.size() == bodylength)
       {
         // 数据已完全读取
-        std::filesystem::path targetDir2 = filehelper::rootDir;
-        filehelper::DecompressFolder(total_buffer, targetDir2.append("realdata"));
-        std::cout << "解压完成:total buffer size: " << std::to_string(total_buffer.size()) << std::endl;
+        std::filesystem::path targetDir = filehelper::rootDir;
+        filehelper::DecompressFolder(total_buffer, targetDir.append("realdata"));
+        std::cout << "解压完成"<< std::endl;
         return;
       }
       buffer.clear();
-      buffer.resize(1024);
+      buffer.resize(temp_length);
       socket.async_read_some(asio::buffer(buffer),
                              std::bind(read_data, std::placeholders::_1, std::placeholders::_2,
                                        std::ref(buffer), std::ref(socket)));
@@ -66,10 +50,10 @@ void read_head(const asio::error_code &error, std::size_t bytes_transferred, std
 {
   if (!error)
   {
-    if (bytes_transferred >= sn_totalHeadLength) // 首先将头取出来
+    if (bytes_transferred >= sn_totalHeadLength) //首先将头取出来
     {
-      auto startIt = buffer.begin();                 // Start from the third element (index 2)
-      auto endIt = buffer.begin() + sn_totalHeadLength; // End at the seventh element (index 5)
+      auto startIt = buffer.begin();                    
+      auto endIt = buffer.begin() + sn_totalHeadLength; 
       std::vector<uint8_t> HeadData(startIt, endIt);
       for (int i = 0; i < sn_headLength; i++)
       {
@@ -79,7 +63,8 @@ void read_head(const asio::error_code &error, std::size_t bytes_transferred, std
           return;
         }
       }
-      bodylength = extractUint64(HeadData,4);
+      std::vector<uint8_t> BodyData( buffer.begin()+sn_headLength,  buffer.begin() + sn_headLength+sn_bodyLength);
+      bodylength = util::extractUint64(BodyData);
       socket.async_read_some(asio::buffer(temp_buffer),
                              std::bind(read_data, std::placeholders::_1, std::placeholders::_2,
                                        std::ref(temp_buffer), std::ref(socket)));
@@ -96,12 +81,11 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
 {
   if (!error)
   {
-    std::cout << "Connected to server: " << endpoint << std::endl;
+    std::cout << "success connected to server: " << endpoint << std::endl;
     asio::async_read(socket, asio::buffer(head_buffer),
                      std::bind(read_head, std::placeholders::_1, std::placeholders::_2, std::ref(head_buffer), std::ref(socket)));
-
-    std::string message = "GET_ALL_FILE\n";
-    asio::write(socket, asio::buffer(message));
+    std::string message = GET_ALL_FILE;
+    asio::write(socket, asio::buffer(GET_ALL_FILE));
     std::cout << "Send message: " << message << std::endl;
   }
   else
@@ -117,9 +101,7 @@ void start_client()
     asio::io_context io_context;
     asio::ip::tcp::socket socket(io_context);
     asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(server_host, "18889");
-
-    // Connect to the server
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(SERVER_HOST,SERVER_PORT);
     asio::async_connect(socket, endpoints, std::bind(connect_handler, std::placeholders::_1, std::placeholders::_2, std::ref(socket)));
     io_context.run();
   }
@@ -134,7 +116,7 @@ int main(int argc, char *argv[])
   if (argc < 1)
   {
     std::cerr << "No command-line arguments provided." << std::endl;
-    return 1;
+    return -1;
   }
   filehelper::rootDir = filehelper::getBaseDir(argv[0]);
   std::cout << "current Path:" + filehelper::rootDir.string() << std::endl;

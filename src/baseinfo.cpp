@@ -11,3 +11,4 @@ unsigned char SniperHead[] =
 unsigned int sn_headLength = 4;
 unsigned int sn_bodyLength = 8;
 unsigned int sn_totalHeadLength = 13;
+unsigned int temp_length=1024;
