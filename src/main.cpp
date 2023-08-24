@@ -27,8 +27,9 @@ void read_data(const asio::error_code &error, std::size_t bytes_transferred, std
       if (total_buffer.size() == bodylength)
       {
         // 数据已完全读取
-        std::filesystem::path targetDir = filehelper::rootDir;
-        filehelper::DecompressFolder(total_buffer, targetDir.append("realdata"));
+        std::filesystem::path rootdir = filehelper::rootDir;
+        auto targetDir=rootdir.append("realdata");
+        filehelper::DecompressFolder(total_buffer, targetDir.string());
         std::cout << "解压完成"<< std::endl;
         return;
       }

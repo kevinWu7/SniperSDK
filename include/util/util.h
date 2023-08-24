@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdint> 
 
 class util
 {

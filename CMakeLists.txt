@@ -19,12 +19,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 )
 
-# 添加zlib的源文件（.c）到编译中
+#让cmake进入zlib和minizip目录去寻找对应的CMakeLists进行构建
 add_subdirectory(external/zlib)
 add_subdirectory(external/minizip)
-# 链接zlib库
-target_link_libraries(${PROJECT_NAME} PRIVATE zlib)
-target_link_libraries(${PROJECT_NAME} PRIVATE minizip)# 链接minizip库
+
+target_link_libraries(${PROJECT_NAME} PRIVATE zlib)   # 链接zlib库
+target_link_libraries(${PROJECT_NAME} PRIVATE minizip) # 链接minizip库
 
 #因为asio跨平台需要用到各个平台的网络库，所以要加上相关链接
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux") 
