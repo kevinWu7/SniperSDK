@@ -1,23 +1,32 @@
 cmake_minimum_required (VERSION 3.1) #最低要求的CMake版本
 project(SniperSDK) # 项目名称
 
+# 建立变量SRC_FILE为目录下cpp文件列表
 file(GLOB SRC_FILE 
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/util/*.cpp"
-) # 建立变量SRC_FILE为目录下cpp文件列表
-
+) 
+message("fadsasdf")
 add_definitions(-DASIO_STANDALONE) #设置asio的独立版，不需要boost
-
 set(CMAKE_CXX_STANDARD 17) # 指定为C++11 版本
-add_executable (${PROJECT_NAME} ${SRC_FILE}) # 要求编译可执行文件
 
-# 为可执行文件目标设置头文件搜索路径
-target_include_directories(${PROJECT_NAME} PRIVATE
+add_library(${PROJECT_NAME} SHARED ${SRC_FILE})  #输出动态库
+#add_executable(${PROJECT_NAME}  ${SRC_FILE}) #输出可执行文件
+
+# 为目标设置头文件搜索路径
+target_include_directories(${PROJECT_NAME} PRIVATE 
     "${CMAKE_SOURCE_DIR}/external/asio"
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/include/util"
-
 )
+
+#指定安装路径
+install(TARGETS ${PROJECT_NAME}
+        LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib
+        ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib
+        RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin)
+#指定头文件安装路径
+install(FILES include/sniper_sdk_api.h DESTINATION ${CMAKE_SOURCE_DIR}/build/include)
 
 #让cmake进入zlib和minizip目录去寻找对应的CMakeLists进行构建
 add_subdirectory(external/zlib)
