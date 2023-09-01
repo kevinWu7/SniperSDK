@@ -18,13 +18,23 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/external/asio"
     "${CMAKE_SOURCE_DIR}/include"
     "${CMAKE_SOURCE_DIR}/include/util"
+    "${CMAKE_SOURCE_DIR}/external/zlib"
+    "${CMAKE_SOURCE_DIR}/external/minizip"
 )
 
 #指定安装路径
-install(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib
-        ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib
-        RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    install(TARGETS ${PROJECT_NAME}
+            LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/linux
+            ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/linux
+            RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin/linux)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    install(TARGETS ${PROJECT_NAME}
+            LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/windows
+            ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/windows
+            RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin/windows)
+endif()
+
 #指定头文件安装路径
 install(FILES include/sniper_sdk_api.h DESTINATION ${CMAKE_SOURCE_DIR}/build/include)
 

@@ -20,7 +20,4 @@ if(WIN32)
 target_link_libraries(${PROJECT_NAME} PRIVATE zlib) #在windows-mingw32上，由于minizip依赖zlib，所以需要添加link,其他平台是ok的
 endif()
 
-# 设置minizip的头文件路径，主程序minizip的头文件时能都自动检测该路径
-target_include_directories(${PROJECT_NAME}  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-
 
