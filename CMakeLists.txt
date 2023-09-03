@@ -6,11 +6,11 @@ file(GLOB SRC_FILE
     "${CMAKE_SOURCE_DIR}/src/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/util/*.cpp"
 ) 
-message("fadsasdf")
+
 add_definitions(-DASIO_STANDALONE) #设置asio的独立版，不需要boost
 set(CMAKE_CXX_STANDARD 17) # 指定为C++11 版本
 
-add_library(${PROJECT_NAME} SHARED ${SRC_FILE})  #输出动态库
+add_library(${PROJECT_NAME} STATIC ${SRC_FILE})  #输出库
 #add_executable(${PROJECT_NAME}  ${SRC_FILE}) #输出可执行文件
 
 # 为目标设置头文件搜索路径
@@ -22,18 +22,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/external/minizip"
 )
 
-#指定安装路径
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    install(TARGETS ${PROJECT_NAME}
-            LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/linux
-            ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/linux
-            RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin/linux)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    install(TARGETS ${PROJECT_NAME}
-            LIBRARY DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/windows
-            ARCHIVE DESTINATION ${CMAKE_SOURCE_DIR}/build/lib/windows
-            RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/build/bin/windows)
-endif()
+#安装-将生成的目标输出到指定目录（包含可执行文件和库文件）
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
 #指定头文件安装路径
 install(FILES include/sniper_sdk_api.h DESTINATION ${CMAKE_SOURCE_DIR}/build/include)
