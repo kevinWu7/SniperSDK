@@ -8,7 +8,7 @@
 #include "filehelper.h"
 #include "util.h"
 #include "sniper_sdk.h"
-#include <mach-o/dyld.h> 
+
 
 int main(int argc, char *argv[])
 {
