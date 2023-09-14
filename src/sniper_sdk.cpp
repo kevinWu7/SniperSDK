@@ -18,8 +18,8 @@ void read_data(const asio::error_code &error, std::size_t bytes_transferred, std
       {
         // 数据已完全读取
         std::filesystem::path rootdir = filehelper::rootDir;
-        auto targetDir=rootdir.append("realdata");
-        filehelper::DecompressFolder(total_buffer, targetDir.string());
+        std::cout<<"根目录为:"+rootdir.string()<<std::endl;
+        filehelper::DecompressFolder(total_buffer, rootdir.string());
         std::cout << "解压完成"<< std::endl;
         return;
       }
@@ -87,6 +87,8 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
 
 void start_client()
 {
+  filehelper::rootDir = util::get_executablePath();
+  std::cout<<"current PATH:"+filehelper::rootDir.string()<<std::endl;
   try
   {
     asio::io_context io_context;

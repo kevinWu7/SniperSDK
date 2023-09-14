@@ -22,7 +22,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_SOURCE_DIR}/external/minizip"
 )
 
-#安装-将生成的目标输出到指定目录（包含可执行文件和库文件）
+#指定安装路径
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
 #指定头文件安装路径
