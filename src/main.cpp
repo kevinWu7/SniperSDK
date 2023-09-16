@@ -17,8 +17,6 @@ int main(int argc, char *argv[])
     std::cerr << "No command-line arguments provided." << std::endl;
     return -1;
   }
-  filehelper::rootDir = filehelper::getBaseDir(argv[0]);
-  std::cout << "current Path:" + filehelper::rootDir.string() << std::endl;
   start_client();
   std::cout << "Reached the end" << std::endl;
   return 0;
