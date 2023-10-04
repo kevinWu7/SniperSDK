@@ -17,7 +17,8 @@ int main(int argc, char *argv[])
     std::cerr << "No command-line arguments provided." << std::endl;
     return -1;
   }
-  start_client();
+  uint32_t sessionId= connect_to_server(SERVER_HOST,SERVER_PORT);
+  send_message(sessionId,GET_ALL_FILE);
   std::cout << "Reached the end" << std::endl;
   return 0;
 }

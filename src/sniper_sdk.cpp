@@ -1,4 +1,10 @@
+
 #include "sniper_sdk.h"
+
+
+std::mutex sessionIDMutex;
+std::map<uint32_t,asio::ip::tcp::socket> session_map;
+uint32_t sessionId=0;
 
 std::vector<uint8_t> head_buffer(sn_totalHeadLength);
 std::vector<uint8_t> temp_buffer(temp_length);
@@ -73,11 +79,11 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
   if (!error)
   {
     std::cout << "success connected to server: " << endpoint << std::endl;
+    get_sessionid();
+    session_map.insert(std::make_pair(sessionId,std::move(socket)));
     asio::async_read(socket, asio::buffer(head_buffer),
                      std::bind(read_head, std::placeholders::_1, std::placeholders::_2, std::ref(head_buffer), std::ref(socket)));
-    std::string message = GET_ALL_FILE;
-    asio::write(socket, asio::buffer(GET_ALL_FILE));
-    std::cout << "Send message: " << message << std::endl;
+    
   }
   else
   {
@@ -85,7 +91,7 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
   }
 }
 
-void start_client()
+uint32_t connect_to_server(std::string server_host,std::string port)
 {
   filehelper::rootDir = util::get_executablePath();
   std::cout<<"current PATH:"+filehelper::rootDir.string()<<std::endl;
@@ -94,7 +100,7 @@ void start_client()
     asio::io_context io_context;
     asio::ip::tcp::socket socket(io_context);
     asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(SERVER_HOST,SERVER_PORT);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(server_host,port);
     asio::async_connect(socket, endpoints, std::bind(connect_handler, std::placeholders::_1, std::placeholders::_2, std::ref(socket)));
     io_context.run();
   }
@@ -102,4 +108,31 @@ void start_client()
   {
     std::cout << "Exception: " << e.what() << std::endl;
   }
+  return 1;
+}
+
+
+
+void send_message(uint32_t sessionId, std::string message)
+{
+   auto it = session_map.find(sessionId);
+    // 检查是否找到键
+    if (it != session_map.end()) 
+    {
+        asio::ip::tcp::socket& m_socket = it->second;
+        asio::write(m_socket, asio::buffer(message));
+        std::cout << "Send message: " << message << std::endl;
+    } 
+    else 
+    {
+        std::cout << sessionId << " not found." << std::endl;
+    }
+}
+
+uint32_t get_sessionid()
+{
+    std::lock_guard<std::mutex> lock(sessionIDMutex); // 锁定互斥锁
+    // 生成唯一的 session ID
+    sessionId=sessionId+1;
+    return sessionId;
 }

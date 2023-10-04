@@ -14,7 +14,7 @@ file(GLOB SRC_FILE_WITHOUT_MAIN
 ) 
 
 add_definitions(-DASIO_STANDALONE) #设置asio的独立版，不需要boost
-set(CMAKE_CXX_STANDARD 17) # 指定为C++11 版本
+set(CMAKE_CXX_STANDARD 17) # 指定为C++17 版本
 
 add_library(${PROJECT_NAME} SHARED ${SRC_FILE_WITHOUT_MAIN})  #输出库
 #add_executable(${PROJECT_NAME}  ${SRC_FILE}) #输出可执行文件
@@ -32,7 +32,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/build/bin)
 
 #指定头文件安装路径
-install(FILES include/sniper_sdk_api.h DESTINATION ${CMAKE_SOURCE_DIR}/build/include)
+install(FILES include/export_api_sniper_sdk.h DESTINATION ${CMAKE_SOURCE_DIR}/build/include)
 
 #让cmake进入zlib和minizip目录去寻找对应的CMakeLists进行构建
 add_subdirectory(external/zlib)
