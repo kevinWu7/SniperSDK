@@ -16,8 +16,8 @@ file(GLOB SRC_FILE_WITHOUT_MAIN
 add_definitions(-DASIO_STANDALONE) #设置asio的独立版，不需要boost
 set(CMAKE_CXX_STANDARD 17) # 指定为C++17 版本
 
-add_library(${PROJECT_NAME} SHARED ${SRC_FILE_WITHOUT_MAIN})  #输出库
-#add_executable(${PROJECT_NAME}  ${SRC_FILE}) #输出可执行文件
+#add_library(${PROJECT_NAME} SHARED ${SRC_FILE_WITHOUT_MAIN})  #输出库
+add_executable(${PROJECT_NAME}  ${SRC_FILE}) #输出可执行文件
 
 # 为目标设置头文件搜索路径
 target_include_directories(${PROJECT_NAME} PRIVATE 
