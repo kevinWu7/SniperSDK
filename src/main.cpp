@@ -10,6 +10,11 @@
 #include "sniper_sdk.h"
 
 
+void connected_ok()
+{
+  send_message(GET_ALL_FILE);
+}
+
 int main(int argc, char *argv[])
 {
   if (argc < 1)
@@ -17,8 +22,12 @@ int main(int argc, char *argv[])
     std::cerr << "No command-line arguments provided." << std::endl;
     return -1;
   }
-  uint32_t sessionId= connect_to_server(SERVER_HOST,SERVER_PORT);
-  send_message(sessionId,GET_ALL_FILE);
-  std::cout << "Reached the end" << std::endl;
+  // 创建一个线程并启动
+  connect_to_server_async(SERVER_HOST,SERVER_PORT,connected_ok);
+ // std::cin.get();
+  std::cout << "main function end" << std::endl;
   return 0;
 }
+
+
+

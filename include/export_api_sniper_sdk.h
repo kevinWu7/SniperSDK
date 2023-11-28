@@ -14,7 +14,7 @@
 
 extern "C"
 {
-    EXPORT_API_SNIPER_SDK uint32_t connect_to_server_export(const char * server_host,const char * port);
+    EXPORT_API_SNIPER_SDK void connect_to_server_export(const char * server_host,const char * port);
     EXPORT_API_SNIPER_SDK void send_message_export(uint32_t sessionId,const char * message);
 
 }

@@ -5,13 +5,41 @@ std::mutex sessionIDMutex;
 std::map<uint32_t, asio::ip::tcp::socket> session_map;
 uint32_t sessionId = 0;
 
-// 全局变量，存储连接后的socket
-//std::shared_ptr<asio::ip::tcp::socket> global_socket = nullptr;
+// 在全局范围内声明全局 socket 和 io_context 对象
+asio::io_context main_io_context;
+asio::ip::tcp::socket main_socket(main_io_context);
+// 是否成功建立连接
+bool isConnected = false;
 
 std::vector<uint8_t> head_buffer(sn_totalHeadLength);
 std::vector<uint8_t> temp_buffer(temp_length);
 std::vector<uint8_t> total_buffer;
 uint64_t bodylength = 0; // 代表数据长度
+std::function<void()> connected_success; //连接成功回调
+
+void connect_to_server_async(std::string server_host, std::string port,std::function<void()> _connected_success)
+{
+  connected_success=_connected_success;
+   std::thread myThread(connect_to_server, server_host,port);
+   myThread.join();
+}
+
+void connect_to_server(std::string server_host, std::string port)
+{  
+  filehelper::rootDir = util::get_executablePath();
+  std::cout << "current PATH:" + filehelper::rootDir.string() << std::endl;
+  try
+  {
+    asio::ip::tcp::resolver resolver(main_io_context);
+    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(server_host, port);
+    asio::async_connect(main_socket, endpoints, std::bind(connect_handler, std::placeholders::_1, std::placeholders::_2, std::ref(main_socket)));
+    main_io_context.run();
+  }
+  catch (std::exception &e)
+  {
+    std::cout << "Exception: " << e.what() << std::endl;
+  }
+}
 
 void read_data(const asio::error_code &error, std::size_t bytes_transferred, std::vector<uint8_t> &buffer, asio::ip::tcp::socket &socket)
 {
@@ -79,17 +107,11 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
   if (!error)
   {
     std::cout << "success connected to server: " << endpoint << std::endl;
-    // get_sessionid();
-    // session_map.insert(std::make_pair(sessionId,std::move(socket)));
-
-    // 存储socket到全局变量
-    // global_socket = std::make_shared<asio::ip::tcp::socket>(std::move(socket));
-
+    
     asio::async_read(socket, asio::buffer(head_buffer),
                      std::bind(read_head, std::placeholders::_1, std::placeholders::_2, std::ref(head_buffer), std::ref(socket)));
-
-    asio::write(socket, asio::buffer(GET_ALL_FILE));
-    std::cout << "Send message: " << GET_ALL_FILE << std::endl;
+    isConnected = true;
+    connected_success();
   }
   else
   {
@@ -97,41 +119,13 @@ void connect_handler(const asio::error_code &error, const asio::ip::tcp::endpoin
   }
 }
 
-uint32_t connect_to_server(std::string server_host, std::string port)
+void send_message(std::string message)
 {
-  filehelper::rootDir = util::get_executablePath();
-  std::cout << "current PATH:" + filehelper::rootDir.string() << std::endl;
-  try
+  if (isConnected)
   {
-    asio::io_context io_context;
-    asio::ip::tcp::socket socket(io_context);
-    asio::ip::tcp::resolver resolver(io_context);
-    asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(server_host, port);
-    asio::async_connect(socket, endpoints, std::bind(connect_handler, std::placeholders::_1, std::placeholders::_2, std::ref(socket)));
-    io_context.run();
+    asio::write(main_socket, asio::buffer(message));
+    std::cout << "Send message: " << message << std::endl;
   }
-  catch (std::exception &e)
-  {
-    std::cout << "Exception: " << e.what() << std::endl;
-  }
-  return 1;
-}
-
-void send_message(uint32_t sessionId, std::string message)
-{
-  //asio::write(global_socket, asio::buffer(message));
-  std::cout << "Send message: " << message << std::endl;
-  /* auto it = session_map.find(sessionId);
-    // 检查是否找到键
-    if (it != session_map.end())
-    {
-        asio::ip::tcp::socket& m_socket = it->second;
-
-    }
-    else
-    {
-        std::cout << sessionId << " not found." << std::endl;
-    }*/
 }
 
 uint32_t get_sessionid()
