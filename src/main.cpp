@@ -10,9 +10,9 @@
 #include "sniper_sdk.h"
 
 
-void connected_ok()
+void connect_success()
 {
-  send_message(GET_ALL_FILE);
+   send_message(GET_ALL_FILE);
 }
 
 int main(int argc, char *argv[])
@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
     return -1;
   }
   // 创建一个线程并启动
-  connect_to_server_async(SERVER_HOST,SERVER_PORT,connected_ok);
- // std::cin.get();
+  connect_to_server_async(SERVER_HOST,SERVER_PORT,connect_success);
+  std::cin.get();
   std::cout << "main function end" << std::endl;
   return 0;
 }

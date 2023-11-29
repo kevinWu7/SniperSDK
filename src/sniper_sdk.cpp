@@ -17,11 +17,15 @@ std::vector<uint8_t> total_buffer;
 uint64_t bodylength = 0; // 代表数据长度
 std::function<void()> connected_success; //连接成功回调
 
+
 void connect_to_server_async(std::string server_host, std::string port,std::function<void()> _connected_success)
 {
-  connected_success=_connected_success;
+   connected_success=_connected_success;
    std::thread myThread(connect_to_server, server_host,port);
-   myThread.join();
+   //将该线程和connect_to_server_async方法解除关系。防止方法结束直接释放myThread对象导致报错。
+   myThread.detach();
+   //调用此方法进程不会阻塞。若加入join这句，则阻塞。
+   //myThread.join();
 }
 
 void connect_to_server(std::string server_host, std::string port)
