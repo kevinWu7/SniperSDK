@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
   }
   // 创建一个线程并启动
   connect_to_server_async(SERVER_HOST,SERVER_PORT,connect_success);
-  std::cin.get();
   std::cout << "main function end" << std::endl;
   return 0;
 }
